@@ -1,0 +1,322 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		200E42FD16CDD478000C98DB /* subproblem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 200E42FC16CDD478000C98DB /* subproblem.cpp */; };
+		200E430016CDD736000C98DB /* global_problem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 200E42FF16CDD736000C98DB /* global_problem.cpp */; };
+		2096636816C1A5D500ADBFF9 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2096636716C1A5D500ADBFF9 /* main.cpp */; };
+		2096636A16C1A5D500ADBFF9 /* InstanceGenerator.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2096636916C1A5D500ADBFF9 /* InstanceGenerator.1 */; };
+		2096637216C1AC4E00ADBFF9 /* instance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2096637116C1AC4E00ADBFF9 /* instance.cpp */; };
+		20F7CDE3174C457F0009E872 /* convex_hull.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 20F7CDE1174C457F0009E872 /* convex_hull.cpp */; };
+		20F7CDE617528A1A0009E872 /* naive_mw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 20F7CDE417528A1A0009E872 /* naive_mw.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2096636216C1A5D500ADBFF9 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+				2096636A16C1A5D500ADBFF9 /* InstanceGenerator.1 in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		200E42FB16CDD466000C98DB /* subproblem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = subproblem.h; sourceTree = "<group>"; };
+		200E42FC16CDD478000C98DB /* subproblem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = subproblem.cpp; sourceTree = "<group>"; };
+		200E42FE16CDD707000C98DB /* global_problem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = global_problem.h; sourceTree = "<group>"; };
+		200E42FF16CDD736000C98DB /* global_problem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = global_problem.cpp; sourceTree = "<group>"; };
+		2096636416C1A5D500ADBFF9 /* InstanceGenerator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = InstanceGenerator; sourceTree = BUILT_PRODUCTS_DIR; };
+		2096636716C1A5D500ADBFF9 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		2096636916C1A5D500ADBFF9 /* InstanceGenerator.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = InstanceGenerator.1; sourceTree = "<group>"; };
+		2096637016C1A79100ADBFF9 /* instance.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = instance.h; sourceTree = "<group>"; };
+		2096637116C1AC4E00ADBFF9 /* instance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = instance.cpp; sourceTree = "<group>"; };
+		20F7CDE1174C457F0009E872 /* convex_hull.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = convex_hull.cpp; sourceTree = "<group>"; };
+		20F7CDE2174C457F0009E872 /* convex_hull.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = convex_hull.h; sourceTree = "<group>"; };
+		20F7CDE417528A1A0009E872 /* naive_mw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = naive_mw.cpp; sourceTree = "<group>"; };
+		20F7CDE517528A1A0009E872 /* naive_mw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = naive_mw.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		2096636116C1A5D500ADBFF9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2096635B16C1A5D500ADBFF9 = {
+			isa = PBXGroup;
+			children = (
+				2096636616C1A5D500ADBFF9 /* InstanceGenerator */,
+				2096636516C1A5D500ADBFF9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		2096636516C1A5D500ADBFF9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2096636416C1A5D500ADBFF9 /* InstanceGenerator */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		2096636616C1A5D500ADBFF9 /* InstanceGenerator */ = {
+			isa = PBXGroup;
+			children = (
+				2096636716C1A5D500ADBFF9 /* main.cpp */,
+				2096636916C1A5D500ADBFF9 /* InstanceGenerator.1 */,
+				2096637016C1A79100ADBFF9 /* instance.h */,
+				2096637116C1AC4E00ADBFF9 /* instance.cpp */,
+				200E42FB16CDD466000C98DB /* subproblem.h */,
+				200E42FC16CDD478000C98DB /* subproblem.cpp */,
+				200E42FE16CDD707000C98DB /* global_problem.h */,
+				200E42FF16CDD736000C98DB /* global_problem.cpp */,
+				20F7CDE1174C457F0009E872 /* convex_hull.cpp */,
+				20F7CDE2174C457F0009E872 /* convex_hull.h */,
+				20F7CDE417528A1A0009E872 /* naive_mw.cpp */,
+				20F7CDE517528A1A0009E872 /* naive_mw.h */,
+			);
+			path = InstanceGenerator;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		2096636316C1A5D500ADBFF9 /* InstanceGenerator */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2096636D16C1A5D500ADBFF9 /* Build configuration list for PBXNativeTarget "InstanceGenerator" */;
+			buildPhases = (
+				2096636016C1A5D500ADBFF9 /* Sources */,
+				2096636116C1A5D500ADBFF9 /* Frameworks */,
+				2096636216C1A5D500ADBFF9 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = InstanceGenerator;
+			productName = InstanceGenerator;
+			productReference = 2096636416C1A5D500ADBFF9 /* InstanceGenerator */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		2096635C16C1A5D500ADBFF9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = "Dragos Ciocan";
+			};
+			buildConfigurationList = 2096635F16C1A5D500ADBFF9 /* Build configuration list for PBXProject "InstanceGenerator" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 2096635B16C1A5D500ADBFF9;
+			productRefGroup = 2096636516C1A5D500ADBFF9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				2096636316C1A5D500ADBFF9 /* InstanceGenerator */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2096636016C1A5D500ADBFF9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2096636816C1A5D500ADBFF9 /* main.cpp in Sources */,
+				2096637216C1AC4E00ADBFF9 /* instance.cpp in Sources */,
+				200E42FD16CDD478000C98DB /* subproblem.cpp in Sources */,
+				200E430016CDD736000C98DB /* global_problem.cpp in Sources */,
+				20F7CDE3174C457F0009E872 /* convex_hull.cpp in Sources */,
+				20F7CDE617528A1A0009E872 /* naive_mw.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		2096636B16C1A5D500ADBFF9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					/Users/ciocan/Applications/IBM/ILOG/CPLEX_Studio_Academic124/cplex/include,
+					/Users/ciocan/Applications/IBM/ILOG/CPLEX_Studio_Academic124/concert/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"/Users/ciocan/Applications/IBM/ILOG/CPLEX_Studio_Academic124/cplex/lib/x86-64_darwin9_gcc4.0/static_pic",
+					"/Users/ciocan/Applications/IBM/ILOG/CPLEX_Studio_Academic124/concert/lib/x86-64_darwin9_gcc4.0/static_pic",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				New_Setting = "";
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CFLAGS = "-DIL_STD";
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				OTHER_LDFLAGS = (
+					"-lilocplex",
+					"-lconcert",
+					"-lcplex",
+					"-lm",
+					"-lpthread",
+					"-framework",
+					CoreFoundation,
+					"-framework",
+					IOKit,
+				);
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		2096636C16C1A5D500ADBFF9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					/Users/ciocan/Applications/IBM/ILOG/CPLEX_Studio_Academic124/cplex/include,
+					/Users/ciocan/Applications/IBM/ILOG/CPLEX_Studio_Academic124/concert/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"/Users/ciocan/Applications/IBM/ILOG/CPLEX_Studio_Academic124/cplex/lib/x86-64_darwin9_gcc4.0/static_pic",
+					"/Users/ciocan/Applications/IBM/ILOG/CPLEX_Studio_Academic124/concert/lib/x86-64_darwin9_gcc4.0/static_pic",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				New_Setting = "";
+				OTHER_CFLAGS = "-DIL_STD";
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				OTHER_LDFLAGS = (
+					"-lilocplex",
+					"-lconcert",
+					"-lcplex",
+					"-lm",
+					"-lpthread",
+					"-framework",
+					CoreFoundation,
+					"-framework",
+					IOKit,
+				);
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		2096636E16C1A5D500ADBFF9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				HEADER_SEARCH_PATHS = (
+					/Users/ciocan/Applications/IBM/ILOG/CPLEX_Studio_Academic124/cplex/include,
+					/Users/ciocan/Applications/IBM/ILOG/CPLEX_Studio_Academic124/concert/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"/Users/ciocan/Applications/IBM/ILOG/CPLEX_Studio_Academic124/cplex/lib/x86-64_darwin9_gcc4.0/static_pic",
+					"/Users/ciocan/Applications/IBM/ILOG/CPLEX_Studio_Academic124/concert/lib/x86-64_darwin9_gcc4.0/static_pic",
+				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		2096636F16C1A5D500ADBFF9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PREPROCESSOR_DEFINITIONS = "";
+				HEADER_SEARCH_PATHS = (
+					/Users/ciocan/Applications/IBM/ILOG/CPLEX_Studio_Academic124/cplex/include,
+					/Users/ciocan/Applications/IBM/ILOG/CPLEX_Studio_Academic124/concert/include,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"/Users/ciocan/Applications/IBM/ILOG/CPLEX_Studio_Academic124/cplex/lib/x86-64_darwin9_gcc4.0/static_pic",
+					"/Users/ciocan/Applications/IBM/ILOG/CPLEX_Studio_Academic124/concert/lib/x86-64_darwin9_gcc4.0/static_pic",
+				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		2096635F16C1A5D500ADBFF9 /* Build configuration list for PBXProject "InstanceGenerator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2096636B16C1A5D500ADBFF9 /* Debug */,
+				2096636C16C1A5D500ADBFF9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2096636D16C1A5D500ADBFF9 /* Build configuration list for PBXNativeTarget "InstanceGenerator" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2096636E16C1A5D500ADBFF9 /* Debug */,
+				2096636F16C1A5D500ADBFF9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 2096635C16C1A5D500ADBFF9 /* Project object */;
+}
