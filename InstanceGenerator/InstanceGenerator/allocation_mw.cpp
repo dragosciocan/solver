@@ -271,7 +271,7 @@ namespace distributed_solver {
     
     long double AllocationMW::CalculateGlobalMWProblemOpt() {
         long double MW_revenue = 0;
-        
+        /*
         for (int a = 0; a < (*primal_sol_).size(); ++a) {
             for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*primal_sol_)[a].begin();
                  iter != (*primal_sol_)[a].end();
@@ -279,7 +279,7 @@ namespace distributed_solver {
                 MW_revenue += iter->second * (*bids_matrix_)[a][iter->first];
             }
         }
-        /*
+        */
         for (int a = 0; a < (*solution_).size(); ++a) {
             for (__gnu_cxx::hash_map<int, pair<long double, long double> >::iterator iter = (*solution_)[a].begin();
                  iter != (*solution_)[a].end();
@@ -287,7 +287,7 @@ namespace distributed_solver {
                 MW_revenue += iter->second.first * (*bids_matrix_)[a][iter->first];
             }
         }
-        */
+        
         cout << "MW rev ";
         cout << MW_revenue;
         cout << "\n";

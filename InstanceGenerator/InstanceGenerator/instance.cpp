@@ -165,9 +165,9 @@ namespace distributed_solver {
     void Instance::BuildPrimals() {
         primal_sol_ = new vector<__gnu_cxx::hash_map<int, long double> >();
         avg_primal_sol_ = new vector<__gnu_cxx::hash_map<int, long double> >();
+        solution_ = new vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >();
         for (int j = 0; j < num_advertisers_; ++j) {
             __gnu_cxx::hash_map<int, long double> row;
-            
             __gnu_cxx::hash_map<int, pair<long double, long double> > row_2;
             
             for (__gnu_cxx::hash_map<int, long double>::iterator iter = bids_matrix_[j].begin();
