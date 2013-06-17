@@ -14,32 +14,42 @@
 namespace distributed_solver {
     NaiveMW::NaiveMW(int num_impressions, int num_advertisers, long double max_bid,
                      long double epsilon, long double width, long double bid_sparsity,
-                     vector<long double> budgets) {
+                    vector<__gnu_cxx::hash_map<int, long double> >* primal_sol,
+                     vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol,
+                     vector<__gnu_cxx::hash_map<int, long double> >* bids_matrix,
+                     vector<__gnu_cxx::hash_map<int, long double> >* transpose_bids_matrix,
+                     vector<long double>* budgets) {
         num_impressions_ = num_impressions;
         num_advertisers_ = num_advertisers;
         max_bid_ = max_bid;
         epsilon_ = epsilon;
         bid_sparsity_ = bid_sparsity;
         width_ = fmax(width, bid_sparsity * num_advertisers_);
+        
         for (int i = 0; i < num_impressions_; ++i) {
             impression_weights_.push_back(1.0);
             impression_slacks_.push_back(0.0);
             impression_avg_slacks_.push_back(0.0);
         }
+        budgets_ = budgets;
+        primal_sol_ = primal_sol;
+        avg_primal_sol_ = avg_primal_sol;
+        bids_matrix_ = bids_matrix;
+        transpose_bids_matrix_ = transpose_bids_matrix;
+        
         for (int i = 0; i < num_advertisers_; ++i) {
-            budgets_.push_back(budgets[i]);
             advertiser_weights_.push_back(1.0);
             advertiser_slacks_.push_back(0.0);
             advertiser_avg_slacks_.push_back(0.0);
         }
     }
      
-    void NaiveMW::CreateRatios(vector<__gnu_cxx::hash_map<int, long double> >* bid_matrix) {
+    void NaiveMW::CreateRatios() {
         ratios_.clear();
         int index = 0;
-        for (int a = 0; a < (*bid_matrix).size(); ++a) {
-            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*bid_matrix)[a].begin();
-                 iter != (*bid_matrix)[a].end(); ++iter) {
+        for (int a = 0; a < (*bids_matrix_).size(); ++a) {
+            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*bids_matrix_)[a].begin();
+                 iter != (*bids_matrix_)[a].end(); ++iter) {
                 ratios_.push_back(KnapsackRatio());
                 ratios_[index].ratio = iter->second /
                                        (iter->second * advertiser_weights_[a] + impression_weights_[iter->first]);
@@ -51,8 +61,7 @@ namespace distributed_solver {
         }
     }
     
-    void NaiveMW::NaiveMWPrimal(vector<__gnu_cxx::hash_map<int, long double> > * bid_matrix,
-                                vector<__gnu_cxx::hash_map<int, long double> > * primal_sol) {
+    void NaiveMW::NaiveMWPrimal() {
         int adv_index = -1;
         int imp_index = -1;
         
@@ -60,11 +69,11 @@ namespace distributed_solver {
         for (int j = 0; j < ratios_.size(); ++j) {
             adv_index = ratios_[j].advertiser_index;
             imp_index = ratios_[j].impression_index;
-            ratios_[j].ratio = (*bid_matrix)[adv_index][imp_index] /
-                               (advertiser_weights_[adv_index] * (*bid_matrix)[adv_index][imp_index] +
+            ratios_[j].ratio = (*bids_matrix_)[adv_index][imp_index] /
+                               (advertiser_weights_[adv_index] * (*bids_matrix_)[adv_index][imp_index] +
                                 impression_weights_[imp_index]);
-            ratios_[j].coefficient = advertiser_weights_[adv_index] * (*bid_matrix)[adv_index][imp_index] +impression_weights_[imp_index];
-            //cout << "updated ratio " << adv_index << ", " << imp_index;
+            ratios_[j].coefficient = advertiser_weights_[adv_index] * (*bids_matrix_)[adv_index][imp_index] +
+                                     impression_weights_[imp_index];
         }
         
         // Sort all knapsack ratios (price/coefficient).
@@ -77,7 +86,7 @@ namespace distributed_solver {
             adv_index = ratios_[current_index].advertiser_index;
             imp_index = ratios_[current_index].impression_index;
             
-            (*primal_sol)[adv_index][imp_index] = fmin(1,
+            (*primal_sol_)[adv_index][imp_index] = fmin(1,
                                                        remaining_budget / ratios_[current_index].coefficient);
             //cout << "setting " << imp_index << ", " << adv_index << " to " << (*primal_sol)[adv_index][imp_index] << "\n";
             remaining_budget -= fmin(ratios_[current_index].coefficient,
@@ -89,36 +98,12 @@ namespace distributed_solver {
     void NaiveMW::UpdateWeightedBudget() {
         weighted_budget_ = 0;
         for (int a = 0; a < num_advertisers_; ++a) {
-            weighted_budget_ += advertiser_weights_[a] * budgets_[a];
+            weighted_budget_ += advertiser_weights_[a] * (*budgets_)[a];
         }
         for (int i = 0; i < num_impressions_; ++i) {
             weighted_budget_ += impression_weights_[i];
         }
         cout << "set weighted budget to " << weighted_budget_ << "\n";
-    }
-    
-    void NaiveMW::ResetPrimal(std::vector<__gnu_cxx::hash_map<int, long double> >* primal_sol) {
-        for (int i = 0; i < (*primal_sol).size(); ++i) {
-            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*primal_sol)[i].begin(); iter != (*primal_sol)[i].end(); ++iter) {
-                iter->second = 0;
-            }
-        }
-    }
-    
-    void NaiveMW::UpdateAvgPrimal(int t,
-                                  vector<__gnu_cxx::hash_map<int, long double> >* primal_sol,
-                                  vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol) {
-        long double new_value = 0;
-        for (int i = 0; i < num_advertisers_; ++i) {
-            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*avg_primal_sol)[i].begin(); iter != (*avg_primal_sol)[i].end(); ++iter) {
-                if ((*primal_sol)[i].find(iter->first) != (*primal_sol)[i].end()) {
-                    new_value = (*primal_sol)[i].find(iter->first)->second;
-                } else {
-                    new_value = 0;
-                }
-                iter->second = (long double)(t - 1) / t * iter->second + (long double)1 / t * new_value;
-            }
-        }
     }
     
     void NaiveMW::UpdateAvgSlacks(int t) {
@@ -138,8 +123,8 @@ namespace distributed_solver {
         int max_infeasibility_type = -1;
         for (int i = 0; i < num_advertisers_; ++i) {
             if ((advertiser_avg_slacks_[i] > 0) and
-                ((advertiser_avg_slacks_[i] / budgets_[i]) > max_infeasibility)){
-                max_infeasibility = advertiser_avg_slacks_[i] / budgets_[i];
+                ((advertiser_avg_slacks_[i] / (*budgets_)[i]) > max_infeasibility)){
+                max_infeasibility = advertiser_avg_slacks_[i] / (*budgets_)[i];
                 max_infeasibility_index = i;
                 max_infeasibility_type = 0;
             }
@@ -208,26 +193,25 @@ namespace distributed_solver {
         }
     }
     
-    void NaiveMW::UpdateAdvertiserSlacks(vector<__gnu_cxx::hash_map<int, long double> >* bid_matrix,
-                                         vector<__gnu_cxx::hash_map<int, long double> >* primal_sol) {
+    void NaiveMW::UpdateAdvertiserSlacks() {
         for (int j = 0; j < num_advertisers_; ++j) {
-            advertiser_slacks_[j] = (-1) * budgets_[j];
-            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*primal_sol)[j].begin();
-                 iter != (*primal_sol)[j].end();
+            advertiser_slacks_[j] = (-1) * (*budgets_)[j];
+            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*primal_sol_)[j].begin();
+                 iter != (*primal_sol_)[j].end();
                  ++iter) {
-                advertiser_slacks_[j] += iter->second * (*bid_matrix)[j].find(iter->first)->second;
+                advertiser_slacks_[j] += iter->second * (*bids_matrix_)[j].find(iter->first)->second;
             }
         }
     }
     
-    void NaiveMW::UpdateImpressionSlacks(vector<__gnu_cxx::hash_map<int, long double> >* primal_sol) {
+    void NaiveMW::UpdateImpressionSlacks() {
         for (int i = 0; i < num_impressions_; ++i) {
             impression_slacks_[i] = -1.0;
         }
         
         for (int j = 0; j < num_advertisers_; ++j) {
-            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*primal_sol)[j].begin();
-                 iter != (*primal_sol)[j].end();
+            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*primal_sol_)[j].begin();
+                 iter != (*primal_sol_)[j].end();
                  ++iter) {
                 impression_slacks_[iter->first] += iter->second;
             }
@@ -235,11 +219,8 @@ namespace distributed_solver {
     }
 
     
-    void NaiveMW::RunNaiveMW(vector<__gnu_cxx::hash_map<int, long double> >* bid_matrix,
-                             vector<__gnu_cxx::hash_map<int, long double> >* primal_sol,
-                             vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol) {
-        int num_iterations = 30000;
-        CreateRatios(bid_matrix);
+    void NaiveMW::RunNaiveMW(int num_iterations) {
+        CreateRatios();
         for (int t = 1; t < num_iterations; ++t) {
             if (t == 10000) {
                 epsilon_ = epsilon_ / 5;
@@ -253,28 +234,27 @@ namespace distributed_solver {
                 epsilon_ = epsilon_ / 2;
             }
             */
-            ResetPrimal(primal_sol);
+            Instance::ResetPrimal(primal_sol_);
             UpdateWeightedBudget();
-            NaiveMWPrimal(bid_matrix, primal_sol);
-            UpdateAdvertiserSlacks(bid_matrix, primal_sol);
-            UpdateImpressionSlacks(primal_sol);
+            NaiveMWPrimal();
+            UpdateAdvertiserSlacks();
+            UpdateImpressionSlacks();
             UpdateAvgSlacks(t);
-            UpdateAvgPrimal(t, primal_sol, avg_primal_sol);
+            Instance::UpdateAvgPrimal(t, primal_sol_, avg_primal_sol_);
             UpdateAdvertiserWeights();
             UpdateImpressionWeights();
             ReportWorstInfeasibility(t);
-            CalculateRevenue(bid_matrix, avg_primal_sol);
+            CalculateRevenue();
         }
     }
     
-    void NaiveMW::CalculateRevenue(vector<__gnu_cxx::hash_map<int, long double> >* bid_matrix,
-                                   vector<__gnu_cxx::hash_map<int, long double> >* primal_sol) {
+    void NaiveMW::CalculateRevenue() {
         long double MW_revenue = 0;
-        for (int a = 0; a < (*primal_sol).size(); ++a) {
-            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*primal_sol)[a].begin();
-                 iter != (*primal_sol)[a].end();
+        for (int a = 0; a < (*primal_sol_).size(); ++a) {
+            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*primal_sol_)[a].begin();
+                 iter != (*primal_sol_)[a].end();
                  ++iter) {
-                MW_revenue += iter->second * (*bid_matrix)[a][iter->first];
+                MW_revenue += iter->second * (*bids_matrix_)[a][iter->first];
             }
         }
         cout << "MW rev ";

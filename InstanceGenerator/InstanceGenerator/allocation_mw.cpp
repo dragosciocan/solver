@@ -19,18 +19,19 @@ namespace distributed_solver {
     typedef IloArray<IloNumVarArray> NumVarMatrix;
     
     AllocationMW::AllocationMW(int num_advertisers, int num_impressions, int num_slots, long double bid_sparsity,
-                               long double max_bid, long double epsilon,
+                               long double max_bid, long double epsilon, long double numerical_accuracy_tolerance,
                                vector<__gnu_cxx::hash_map<int, long double> >* primal_sol,
                                vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol,
                                vector<__gnu_cxx::hash_map<int, long double> >* bids_matrix,
                                vector<__gnu_cxx::hash_map<int, long double> >* transpose_bids_matrix,
-                               vector<long double>* budgets) : global_problem_(num_impressions,
-                                                                               max_bid,
-                                                                               bid_sparsity * num_impressions) {
+                               vector<long double>* budgets,
+                               vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* solution) :
+    global_problem_(num_impressions, max_bid, bid_sparsity * num_impressions, numerical_accuracy_tolerance, solution) {
         
         epsilon_ = epsilon;
         iteration_count_ = 0;
         max_bid_ = max_bid;
+        numerical_accuracy_tolerance_ = numerical_accuracy_tolerance;
         
         num_advertisers_ = num_advertisers;
         num_impressions_ = num_impressions;
@@ -43,6 +44,8 @@ namespace distributed_solver {
         budgets_ = budgets;
         bids_matrix_ = bids_matrix;
         transpose_bids_matrix_ = transpose_bids_matrix;
+        
+        solution_ = solution;
         
         weights_ = vector<long double>(num_advertisers_);
         slacks_ = vector<long double>(num_advertisers_);
@@ -268,6 +271,7 @@ namespace distributed_solver {
     
     long double AllocationMW::CalculateGlobalMWProblemOpt() {
         long double MW_revenue = 0;
+        
         for (int a = 0; a < (*primal_sol_).size(); ++a) {
             for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*primal_sol_)[a].begin();
                  iter != (*primal_sol_)[a].end();
@@ -275,6 +279,15 @@ namespace distributed_solver {
                 MW_revenue += iter->second * (*bids_matrix_)[a][iter->first];
             }
         }
+        /*
+        for (int a = 0; a < (*solution_).size(); ++a) {
+            for (__gnu_cxx::hash_map<int, pair<long double, long double> >::iterator iter = (*solution_)[a].begin();
+                 iter != (*solution_)[a].end();
+                 ++iter) {
+                MW_revenue += iter->second.first * (*bids_matrix_)[a][iter->first];
+            }
+        }
+        */
         cout << "MW rev ";
         cout << MW_revenue;
         cout << "\n";

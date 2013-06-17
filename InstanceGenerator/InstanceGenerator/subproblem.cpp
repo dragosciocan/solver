@@ -1,4 +1,4 @@
-//
+  //
 //  subproblem.cpp
 //  InstanceGenerator
 //
@@ -9,8 +9,12 @@
 #include <cmath>
 #include <list>
 #include <float.h>
-#include "subproblem.h"
 #include "convex_hull.h"
+#include "upper_envelope.h"
+#include "subproblem.h"
+#include "time.h"
+
+#include <fstream>
 
 using namespace std;
 
@@ -20,6 +24,8 @@ namespace distributed_solver {
         coefficient_ = coefficient;
         weight_ = weight;
     }
+    
+    Constraint::Constraint() {}
     
     void Constraint::set_active(bool value) {
         is_active_ = value;
@@ -106,6 +112,13 @@ namespace distributed_solver {
             return;
         }
         
+        //if (iteration == 6 && index == 715) {
+        if (iteration == 2 && index == 715) {
+            int y = 0;
+            y++;
+            cout << y;
+        }
+        
         // Eliminate all superfluous constraints.
         std::vector<Constraint> active_constraints;
        
@@ -153,6 +166,55 @@ namespace distributed_solver {
         }
         // Last, create intersection with y axis
         envelope_points_.push_back(std::make_pair(0.0, active_constraints[active_constraints.size() - 1].price_));
+        // Find the budget ranges where there is a change of basis.
+        budget_cutoffs_.clear();
+        // Start by addding 0 for convenience.
+        budget_cutoffs_.push_back(0.0);
+        for (int k = 0; k < envelope_points_.size() - 1; ++k) {
+            if ((envelope_points_[k].first - envelope_points_[k + 1].first) > 0.00000000000001) {
+                budget_cutoffs_.push_back((envelope_points_[k + 1].second - envelope_points_[k].second) /
+                                          (envelope_points_[k].first - envelope_points_[k + 1].first));
+            } else {
+                budget_cutoffs_.push_back(budget_cutoffs_[k]);
+            }
+        }
+        // Add +\infty for convenience.
+        budget_cutoffs_.push_back(DBL_MAX);
+        active_constraints.clear();
+    }
+    
+    void Subproblem::SolveSubproblemConvexHullOptimized(int iteration, int index) {
+        if (constraints_.size() < 1) {
+            return;
+        }
+        
+        //if (iteration == 6 && index == 715) {
+        if (iteration == 2 && index == 715) {
+            int y = 0;
+            y++;
+            cout << y;
+        }
+        clock_t t1, t2, t3;
+        float diff;
+        t1 = clock();
+        std::vector<Constraint> active_constraints = upper_envelope(constraints_, 0.00000000000001);
+        t2 = clock();
+        diff = ((float)t2-(float)t1);
+        t3 = clock();
+        diff = ((float)t3-(float)t2);
+        
+        // Go through active constraints, create envelope points.
+        envelope_points_.clear();
+        envelope_points_.push_back(std::make_pair((active_constraints[active_constraints.size() - 2].price_ /
+                                                   active_constraints[active_constraints.size() - 2].coefficient_), 0.0));
+        for (int k = (active_constraints.size() - 2); k > 0; --k) {
+            long double u_value = ((active_constraints[k - 1].price_ - active_constraints[k].price_) /
+                                   (active_constraints[k - 1].coefficient_ - active_constraints[k].coefficient_));
+            envelope_points_.push_back(std::make_pair(u_value, (active_constraints[k - 1].price_ -
+                                                                active_constraints[k - 1].coefficient_ * u_value)));
+        }
+        envelope_points_.push_back(std::make_pair(0.0, active_constraints[0].price_));
+        
         // Find the budget ranges where there is a change of basis.
         budget_cutoffs_.clear();
         // Start by addding 0 for convenience.

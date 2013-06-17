@@ -32,6 +32,7 @@ namespace distributed_solver {
         long double width_;
         long double epsilon_;
         long double max_bid_;
+        long double numerical_accuracy_tolerance_;
         
         vector<__gnu_cxx::hash_map<int, long double> >* bids_matrix_;
         vector<__gnu_cxx::hash_map<int, long double> >* transpose_bids_matrix_;
@@ -41,6 +42,8 @@ namespace distributed_solver {
         vector<__gnu_cxx::hash_map<int, long double> >* primal_sol_;
         vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol_;
         
+        vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* solution_;
+        
         // Multiplicative weights related vars.
         int iteration_count_;
         vector<long double> weights_;
@@ -48,12 +51,13 @@ namespace distributed_solver {
         
     public:
         AllocationMW(int num_advertisers, int num_impressions, int num_slots, long double bid_sparsity,
-                     long double max_bid, long double epsilon,
+                     long double max_bid, long double epsilon, long double numerical_accuracy_tolerance,
                      vector<__gnu_cxx::hash_map<int, long double> >* primal_sol,
                      vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol,
                      vector<__gnu_cxx::hash_map<int, long double> >* bids_matrix,
                      vector<__gnu_cxx::hash_map<int, long double> >* transpose_bids_matrix,
-                     vector<long double>* budgets);
+                     vector<long double>* budgets,
+                     vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* solution);
         
         // Generation and output functions.
         void GenerateInstance();

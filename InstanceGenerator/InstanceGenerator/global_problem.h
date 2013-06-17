@@ -23,11 +23,16 @@ namespace distributed_solver {
     public:
         int num_partitions_;
         long double budget_;
+        int num_iterations_;
+        
         vector<pair<int, long double> > budget_allocation_;
         vector<Subproblem> subproblems_;
         vector<long double> slacks_;
         
-        GlobalProblem(int num_partitions, long double max_bid, long double advertiser_indegree);
+        vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* solution_;
+        
+        GlobalProblem(int num_partitions, long double max_bid, long double advertiser_indegree, long double numerical_accuracy_tolerance,
+                      vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* solution);
         void InitializeInstance();
         void InitializeBudgetAllocation();
         void ConstructPrimal(vector<__gnu_cxx::hash_map<int, long double> >* primal_sol, int iteration);
@@ -36,11 +41,7 @@ namespace distributed_solver {
         void FindOptimalBudgetAllocation();
         void ConstructSubproblemPrimal(vector<__gnu_cxx::hash_map<int, long double> >* primal_sol,
                                        int subproblem_index, long double budget_allocation, int opt_region);
-        void ResetPrimal(vector<__gnu_cxx::hash_map<int, long double> >* primal_sol);
-        
         long double numerical_accuracy_tolerance_;
-        void SetTolerance(long double numerical_accuracy_tolerance);
-        
         long double primal_assignment_test_;
     };
     

@@ -8,12 +8,20 @@
 
 #include <algorithm>
 #include <cmath>
+
 #include "global_problem.h"
+#include "instance.h"
+#include "time.h"
 
 namespace distributed_solver {
-    GlobalProblem::GlobalProblem(int num_partitions, long double max_bid, long double advertiser_indegree) {
+    GlobalProblem::GlobalProblem(int num_partitions, long double max_bid, long double advertiser_indegree,
+                                 long double numerical_accuracy_tolerance,
+                                 vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* solution) {
         num_partitions_ = num_partitions;
         budget_ = 0;
+        solution_ = solution;
+        num_iterations_ = 0;
+        numerical_accuracy_tolerance_ = numerical_accuracy_tolerance;
     }
     
     void GlobalProblem::FindOptimalBudgetAllocation() {
@@ -50,20 +58,37 @@ namespace distributed_solver {
     }
     
     void GlobalProblem::ConstructPrimal(vector<__gnu_cxx::hash_map<int, long double> >* primal_sol, int iteration) {
-        // Reset primal solution.
-        GlobalProblem::ResetPrimal(primal_sol);
+        num_iterations_++;
         
+        // Reset primal solution.
+        Instance::ResetPrimal(primal_sol);
+        Instance::ResetCurrentPrimal(solution_);
+        
+        clock_t t1, t2;
+        float diff;
+        t1 = clock();
         // Find optimal budget allocations to problems.
         cout << "Solving subproblems \n";
         for (int i = 0; i < num_partitions_; ++i) {
             //subproblems_[i].SolveSubproblem(iteration, i);
-            subproblems_[i].SolveSubproblemConvexHull(iteration, i);
+            //subproblems_[i].SolveSubproblemConvexHull(iteration, i);
+            subproblems_[i].SolveSubproblemConvexHullOptimized(iteration, i);
         }
+        t2 = clock();
+        diff = ((float)t2-(float)t1);
+        cout << "subproblems took  " << diff << "\n";
+        
+        
         cout << "Find optimal budget allocation \n";
+        t1 = clock();
         FindOptimalBudgetAllocation();
+        t2 = clock();
+        diff = ((float)t2-(float)t1);
+        cout << "budget allocation took  " << diff << "\n";
         
         // Calculate primal solution for each subproblem.
         cout << "Constructing primal \n";
+        t1 = clock();
         long double dual_val = 0;
         primal_assignment_test_ = 0;
         for (int i = 0; i < num_partitions_; ++i) {
@@ -74,6 +99,10 @@ namespace distributed_solver {
                 ConstructSubproblemPrimal(primal_sol, i, budget_allocation_[i].second, budget_allocation_[i].first);
             }
         }
+        t2 = clock();
+        diff = ((float)t2-(float)t1);
+        cout << "constructing primal took  " << diff << "\n";
+        
         cout << "Dual Value = ";
         cout << dual_val;
         cout << "\n";
@@ -99,6 +128,7 @@ namespace distributed_solver {
             }
             
             (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(max_price_index)][subproblem_index] = 1;
+            (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(max_price_index)][subproblem_index].first = 1;
             
             allocation_value = (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(max_price_index)][subproblem_index] * subproblems_[subproblem_index].constraints_[max_price_index].price_;
             
@@ -119,7 +149,8 @@ namespace distributed_solver {
                 }
             }
              
-            (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(max_ratio_index)][subproblem_index] =budget_allocation / subproblems_[subproblem_index].constraints_[max_ratio_index].coefficient_;
+            (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(max_ratio_index)][subproblem_index].first = budget_allocation / subproblems_[subproblem_index].constraints_[max_ratio_index].coefficient_;
+            (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(max_ratio_index)][subproblem_index] = budget_allocation / subproblems_[subproblem_index].constraints_[max_ratio_index].coefficient_;
            
             allocation_value = (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(max_ratio_index)][subproblem_index] * subproblems_[subproblem_index].constraints_[max_ratio_index].price_;
             primal_assignment_test_ += allocation_value;
@@ -134,7 +165,7 @@ namespace distributed_solver {
                     long double slack = subproblems_[subproblem_index].constraints_[i].price_ -
                     (u * subproblems_[subproblem_index].constraints_[i].coefficient_ + v);
                     if (slack < 0) { slack = (-1) * slack;}
-                    if (slack < 0.000000000000000001) {
+                    if (slack < numerical_accuracy_tolerance_) {
                         tight_constraint_indices.push_back(i);
                     }
                 }
@@ -146,6 +177,10 @@ namespace distributed_solver {
                 (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->
                               at(tight_constraint_indices[0])]
                             [subproblem_index] = fmin(budget_allocation / subproblems_[subproblem_index].constraints_[tight_constraint_indices[0]].coefficient_, 1);
+                (*solution_)[subproblems_[subproblem_index].advertiser_index_->
+                              at(tight_constraint_indices[0])][subproblem_index].first = fmin(budget_allocation / subproblems_[subproblem_index].constraints_[tight_constraint_indices[0]].coefficient_, 1);
+                
+                
                 allocation_value = (*primal_sol)[subproblems_[subproblem_index].advertiser_index_-> at(tight_constraint_indices[0])][subproblem_index] * subproblems_[subproblem_index].constraints_[tight_constraint_indices[0]].coefficient_;
                 primal_assignment_test_ += allocation_value;
             }
@@ -157,24 +192,18 @@ namespace distributed_solver {
                               subproblems_[subproblem_index].constraints_[second_index].coefficient_) / (subproblems_[subproblem_index].constraints_[first_index].coefficient_ - subproblems_[subproblem_index].constraints_[second_index].coefficient_);
                 (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(first_index)][subproblem_index] = x_1;
                 (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(second_index)][subproblem_index] = 1 - x_1;
+                (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(first_index)][subproblem_index].first = x_1;
+                (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(second_index)][subproblem_index].first = 1 - x_1;
                 
                 allocation_value = x_1 * subproblems_[subproblem_index].constraints_[first_index].price_ + (1-x_1)*subproblems_[subproblem_index].constraints_[second_index].price_;
                 primal_assignment_test_ += allocation_value;
                 
             }
         }
-        if (((allocation_value - (u * budget_allocation + v)) > 0.0000001) ||
-            ((allocation_value - (u * budget_allocation + v)) < -0.0000001)) {
+        if (((allocation_value - (u * budget_allocation + v)) > numerical_accuracy_tolerance_) ||
+            ((allocation_value - (u * budget_allocation + v)) < -numerical_accuracy_tolerance_)) {
             cout << "**************Error at problem************ " << subproblem_index << " equal to " <<
                          allocation_value << " - " << (u * budget_allocation + v) << "\n";
-        }
-    }
-    
-    void GlobalProblem::ResetPrimal(vector<__gnu_cxx::hash_map<int, long double> >* primal_sol) {
-        for (int i = 0; i < (*primal_sol).size(); ++i) {
-            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*primal_sol)[i].begin(); iter != (*primal_sol)[i].end(); ++iter) {
-                iter->second = 0;
-            }
         }
     }
     
@@ -182,10 +211,6 @@ namespace distributed_solver {
         for (int i = 0; i < num_partitions_; ++i) {
             budget_allocation_.push_back(make_pair(0, 0.0));
         }
-    }
-    
-    void GlobalProblem::SetTolerance(long double numerical_accuracy_tolerance) {
-        numerical_accuracy_tolerance_ = numerical_accuracy_tolerance;
     }
     
     Slope::Slope(long double slope, int subproblem_index, int region_index) {

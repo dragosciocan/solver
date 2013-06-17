@@ -15,6 +15,8 @@
 #include <iostream>
 #include <vector>
 
+#include "instance.h"
+
 using namespace std;
 
 struct KnapsackRatio {
@@ -37,40 +39,41 @@ class NaiveMW {
     long double advertiser_indegree_;
     long double epsilon_;
     long double width_;
+    int num_iterations_;
     vector<long double> impression_weights_, advertiser_weights_;
     vector<long double> impression_slacks_, advertiser_slacks_;
     vector<long double> impression_avg_slacks_, advertiser_avg_slacks_;
     vector<KnapsackRatio> ratios_;
     long double weighted_budget_;
-    vector<long double> budgets_;
+    vector<long double>* budgets_;
+    vector<__gnu_cxx::hash_map<int, long double> >* primal_sol_;
+    vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol_;
+    vector<__gnu_cxx::hash_map<int, long double> >* bids_matrix_;
+    vector<__gnu_cxx::hash_map<int, long double> >* transpose_bids_matrix_;
 
 public:
     NaiveMW(int num_impressions, int num_advertisers, long double max_bid,
             long double epsilon, long double width, long double bid_sparsity,
-            vector<long double> budgets);
-    void NaiveMWPrimal(vector<__gnu_cxx::hash_map<int, long double> >* bid_matrix,
-                       vector<__gnu_cxx::hash_map<int, long double> >* primal_sol);
-    void CreateRatios(vector<__gnu_cxx::hash_map<int, long double> >* bid_matrix);
-    void UpdateRatios(vector<__gnu_cxx::hash_map<int, long double> >* bid_matrix);
-    void RunNaiveMW(vector<__gnu_cxx::hash_map<int, long double> >* bid_matrix,
-                    vector<__gnu_cxx::hash_map<int, long double> >* primal_sol,
-                    vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol);
+            vector<__gnu_cxx::hash_map<int, long double> >* primal_sol,
+            vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol,
+            vector<__gnu_cxx::hash_map<int, long double> >* bids_matrix,
+            vector<__gnu_cxx::hash_map<int, long double> >* transpose_bids_matrix,
+            vector<long double>* budgets);
+    void NaiveMWPrimal();
+    void CreateRatios();
+    void UpdateRatios();
+    void RunNaiveMW(int num_iterations);
     
 private:
     void UpdateWeightedBudget();
     void UpdateAdvertiserWeights();
     void UpdateImpressionWeights();
-    void UpdateAdvertiserSlacks(vector<__gnu_cxx::hash_map<int, long double> >* bid_matrix,
-                                vector<__gnu_cxx::hash_map<int, long double> >* primal_sol);
-    void UpdateImpressionSlacks(vector<__gnu_cxx::hash_map<int, long double> >* primal_sol);
-    void ResetPrimal(vector<__gnu_cxx::hash_map<int, long double> >* primal_sol);
-    void UpdateAvgPrimal(int t,
-                         vector<__gnu_cxx::hash_map<int, long double> >* primal_sol,
-                         vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol);
+    void UpdateAdvertiserSlacks();
+    void UpdateImpressionSlacks();
+    void ResetPrimal();
     void UpdateAvgSlacks(int t);
     void ReportWorstInfeasibility(int t);
-    void CalculateRevenue(vector<__gnu_cxx::hash_map<int, long double> >* bid_matrix,
-                                   vector<__gnu_cxx::hash_map<int, long double> >* primal_sol);
+    void CalculateRevenue();
 };
 }
 

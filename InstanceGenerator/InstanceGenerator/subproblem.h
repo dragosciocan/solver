@@ -23,6 +23,7 @@ namespace distributed_solver {
         long double coefficient_;
         long double weight_; // Add this to avoid arithmetic precision errors.
         bool is_active_;
+        Constraint(); // Default constructor.
         Constraint(long double price, long double coefficient, long double weight);
         void set_active(bool value);
     };
@@ -44,7 +45,7 @@ namespace distributed_solver {
         Subproblem(int num_vars, std::vector<std::pair<long double, long double> >* coefficients, std::vector<int>* advertiser_index);
         void SolveSubproblem(int iteration, int index);
         void SolveSubproblemConvexHull(int iteration, int index);
-        void SolveSubproblemConvexHullTest(int iteration, int index);
+        void SolveSubproblemConvexHullOptimized(int iteration, int index);
     };
 }
 

@@ -9,11 +9,13 @@
 /* Begin PBXBuildFile section */
 		200E42FD16CDD478000C98DB /* subproblem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 200E42FC16CDD478000C98DB /* subproblem.cpp */; };
 		200E430016CDD736000C98DB /* global_problem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 200E42FF16CDD736000C98DB /* global_problem.cpp */; };
+		2041807C176A4FA3009FE1BF /* upper_envelope.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2041807A176A4FA3009FE1BF /* upper_envelope.cpp */; };
 		2096636816C1A5D500ADBFF9 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2096636716C1A5D500ADBFF9 /* main.cpp */; };
 		2096636A16C1A5D500ADBFF9 /* InstanceGenerator.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2096636916C1A5D500ADBFF9 /* InstanceGenerator.1 */; };
 		2096637216C1AC4E00ADBFF9 /* instance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2096637116C1AC4E00ADBFF9 /* instance.cpp */; };
 		20F7CDE3174C457F0009E872 /* convex_hull.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 20F7CDE1174C457F0009E872 /* convex_hull.cpp */; };
 		20F7CDE617528A1A0009E872 /* naive_mw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 20F7CDE417528A1A0009E872 /* naive_mw.cpp */; };
+		20FF80C31767E1950076113C /* allocation_mw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 20FF80C11767E1950076113C /* allocation_mw.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -34,6 +36,8 @@
 		200E42FC16CDD478000C98DB /* subproblem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = subproblem.cpp; sourceTree = "<group>"; };
 		200E42FE16CDD707000C98DB /* global_problem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = global_problem.h; sourceTree = "<group>"; };
 		200E42FF16CDD736000C98DB /* global_problem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = global_problem.cpp; sourceTree = "<group>"; };
+		2041807A176A4FA3009FE1BF /* upper_envelope.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = upper_envelope.cpp; sourceTree = "<group>"; };
+		2041807B176A4FA3009FE1BF /* upper_envelope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = upper_envelope.h; sourceTree = "<group>"; };
 		2096636416C1A5D500ADBFF9 /* InstanceGenerator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = InstanceGenerator; sourceTree = BUILT_PRODUCTS_DIR; };
 		2096636716C1A5D500ADBFF9 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		2096636916C1A5D500ADBFF9 /* InstanceGenerator.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = InstanceGenerator.1; sourceTree = "<group>"; };
@@ -43,6 +47,8 @@
 		20F7CDE2174C457F0009E872 /* convex_hull.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = convex_hull.h; sourceTree = "<group>"; };
 		20F7CDE417528A1A0009E872 /* naive_mw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = naive_mw.cpp; sourceTree = "<group>"; };
 		20F7CDE517528A1A0009E872 /* naive_mw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = naive_mw.h; sourceTree = "<group>"; };
+		20FF80C11767E1950076113C /* allocation_mw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = allocation_mw.cpp; sourceTree = "<group>"; };
+		20FF80C21767E1950076113C /* allocation_mw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = allocation_mw.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +93,10 @@
 				20F7CDE2174C457F0009E872 /* convex_hull.h */,
 				20F7CDE417528A1A0009E872 /* naive_mw.cpp */,
 				20F7CDE517528A1A0009E872 /* naive_mw.h */,
+				20FF80C11767E1950076113C /* allocation_mw.cpp */,
+				20FF80C21767E1950076113C /* allocation_mw.h */,
+				2041807A176A4FA3009FE1BF /* upper_envelope.cpp */,
+				2041807B176A4FA3009FE1BF /* upper_envelope.h */,
 			);
 			path = InstanceGenerator;
 			sourceTree = "<group>";
@@ -148,6 +158,8 @@
 				200E430016CDD736000C98DB /* global_problem.cpp in Sources */,
 				20F7CDE3174C457F0009E872 /* convex_hull.cpp in Sources */,
 				20F7CDE617528A1A0009E872 /* naive_mw.cpp in Sources */,
+				20FF80C31767E1950076113C /* allocation_mw.cpp in Sources */,
+				2041807C176A4FA3009FE1BF /* upper_envelope.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

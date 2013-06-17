@@ -14,7 +14,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "global_problem.h"
+#include "allocation_mw.h"
 
 #include <ilcplex/ilocplex.h>
 ILOSTLBEGIN
@@ -22,6 +22,7 @@ ILOSTLBEGIN
 using namespace std;
 
 namespace distributed_solver {
+
 class Instance {
     int num_advertisers_;
     int num_impressions_;
@@ -30,48 +31,38 @@ class Instance {
     int num_shards_;
     long double width_;
     long double epsilon_;
+    long double scaling_factor_;
     vector<__gnu_cxx::hash_map<int, long double> > bids_matrix_; // Matrix of bids of advertisers for impressions.
     vector<__gnu_cxx::hash_map<int, long double> > transpose_bids_matrix_;
-    
     vector<long double> budgets_;
-    vector<long double> slacks_;
-    vector<long double> avg_slacks_;
     vector<__gnu_cxx::hash_map<int, long double> >* primal_sol_;
-    vector<__gnu_cxx::hash_map<int, long double> > avg_primal_sol_;
+    vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol_;
+    
+    vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* solution_;
     
     // Multiplicative weights related vars.
     int iteration_count_;
-    vector<long double> weights_;
-    GlobalProblem global_problem_;
+    long double numerical_accuracy_tolerance_;
     
 public:
-    Instance(int num_advertisers, int num_impressions, int num_slots, long double bid_sparsity);
+    Instance(int num_advertisers, int num_impressions, int num_slots, long double bid_sparsity, long double epsilon,
+             long double scaling_factor, long double numerical_accuracy_toleranc);
     long double max_bid_;
     
     // Generation and output functions.
     void GenerateInstance();
     void WriteInstanceToCSV(std::string file_name_handle);
     void GenerateAndWriteInstance(std::string file_name_handle);
-    void SetBudgets(long double factor);
+    void SetBudgets();
     
     // Creates current global problem.
     void RunMultiplicativeWeights(long double num_iterations, long double numerical_accuracy_tolerance);
-    void CreateGlobalProblem();
-    void ComputeWeightedBudget();
-    void UpdateGlobalProblem();
-    void UpdateWeights();
-    void CalculateInstanceWidth();
-    void CalculateSlacks();
-    void UpdateAvgPrimal(int t);
-    void UpdateAvgSlacks(int t);
-    void ReportWorstInfeasibility(int t);
+    static void UpdateAvgPrimal(int t,
+                                vector<__gnu_cxx::hash_map<int, long double> >* sol,
+                                vector<__gnu_cxx::hash_map<int, long double> >* avg_sol);
     void BuildPrimals();
-    void ReportWeightStats();
-    void ComputeCPLEXRevenue();
-
- private:
-    void VerifySolution();
-    long double CalculateGlobalMWProblemOpt();
+    static void ResetPrimal(vector<__gnu_cxx::hash_map<int, long double> >* sol);
+    static void ResetCurrentPrimal(vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* sol);
 };
 }
 

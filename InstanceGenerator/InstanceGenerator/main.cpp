@@ -28,8 +28,8 @@ int main(int argc, const char * argv[])
     
     std::string file_name_path = "/Users/ciocan/Documents/Google/data/experiment_";
     int num_iterations = 20000;
-    
-    long double numerical_accuracy_tolerance = 0.0000000000001;
+    long double epsilon = 0.01;
+    long double numerical_accuracy_tolerance = 0.000000000000000001;
     
     for (int i = 0; i < (sizeof(advertiser_dimensions) / sizeof(int)); ++i) {
         for (int j = 0; j < (sizeof(impression_dimensions) / sizeof(int)); ++j) {
@@ -37,13 +37,16 @@ int main(int argc, const char * argv[])
                 Instance inst = Instance(advertiser_dimensions[i],
                                          impression_dimensions[j],
                                          1,
-                                         bid_sparsity_scenario[k]);
+                                         bid_sparsity_scenario[k],
+                                         epsilon,
+                                         0.25,
+                                         numerical_accuracy_tolerance);
                 inst.GenerateInstance();
-                std::cout << file_name_path + "\n";
+                // std::cout << file_name_path + "\n";
                 // inst.WriteInstanceToCSV(file_name_path);
                 // inst.GenerateAndWriteInstance(file_name_path);
                 
-                std::cout << "created global problem \n";
+                // std::cout << "created global problem \n";
                 inst.RunMultiplicativeWeights(num_iterations, numerical_accuracy_tolerance);
                 std::cout << "finished \n";
             }
