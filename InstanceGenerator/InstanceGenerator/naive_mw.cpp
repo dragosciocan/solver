@@ -14,8 +14,7 @@
 namespace distributed_solver {
     NaiveMW::NaiveMW(int num_impressions, int num_advertisers, long double max_bid,
                      long double epsilon, long double width, long double bid_sparsity,
-                    vector<__gnu_cxx::hash_map<int, long double> >* primal_sol,
-                     vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol,
+                     vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* solution,
                      vector<__gnu_cxx::hash_map<int, long double> >* bids_matrix,
                      vector<__gnu_cxx::hash_map<int, long double> >* transpose_bids_matrix,
                      vector<long double>* budgets) {
@@ -32,8 +31,7 @@ namespace distributed_solver {
             impression_avg_slacks_.push_back(0.0);
         }
         budgets_ = budgets;
-        primal_sol_ = primal_sol;
-        avg_primal_sol_ = avg_primal_sol;
+        solution_ = solution;
         bids_matrix_ = bids_matrix;
         transpose_bids_matrix_ = transpose_bids_matrix;
         
@@ -86,9 +84,8 @@ namespace distributed_solver {
             adv_index = ratios_[current_index].advertiser_index;
             imp_index = ratios_[current_index].impression_index;
             
-            (*primal_sol_)[adv_index][imp_index] = fmin(1,
-                                                       remaining_budget / ratios_[current_index].coefficient);
-            //cout << "setting " << imp_index << ", " << adv_index << " to " << (*primal_sol)[adv_index][imp_index] << "\n";
+            (*solution_)[adv_index][imp_index].first = fmin(1,
+                                                            remaining_budget / ratios_[current_index].coefficient);
             remaining_budget -= fmin(ratios_[current_index].coefficient,
                                      remaining_budget);
             current_index++;
@@ -196,10 +193,10 @@ namespace distributed_solver {
     void NaiveMW::UpdateAdvertiserSlacks() {
         for (int j = 0; j < num_advertisers_; ++j) {
             advertiser_slacks_[j] = (-1) * (*budgets_)[j];
-            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*primal_sol_)[j].begin();
-                 iter != (*primal_sol_)[j].end();
+            for (__gnu_cxx::hash_map<int, pair<long double, long double> >::iterator iter = (*solution_)[j].begin();
+                 iter != (*solution_)[j].end();
                  ++iter) {
-                advertiser_slacks_[j] += iter->second * (*bids_matrix_)[j].find(iter->first)->second;
+                advertiser_slacks_[j] += iter->second.first * (*bids_matrix_)[j].find(iter->first)->second;
             }
         }
     }
@@ -210,10 +207,10 @@ namespace distributed_solver {
         }
         
         for (int j = 0; j < num_advertisers_; ++j) {
-            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*primal_sol_)[j].begin();
-                 iter != (*primal_sol_)[j].end();
+            for (__gnu_cxx::hash_map<int, pair<long double, long double> >::iterator iter = (*solution_)[j].begin();
+                 iter != (*solution_)[j].end();
                  ++iter) {
-                impression_slacks_[iter->first] += iter->second;
+                impression_slacks_[iter->first] += iter->second.first;
             }
         }
     }
@@ -234,13 +231,13 @@ namespace distributed_solver {
                 epsilon_ = epsilon_ / 2;
             }
             */
-            Instance::ResetPrimal(primal_sol_);
+            Instance::ResetCurrentPrimal(solution_);
             UpdateWeightedBudget();
             NaiveMWPrimal();
             UpdateAdvertiserSlacks();
             UpdateImpressionSlacks();
             UpdateAvgSlacks(t);
-            Instance::UpdateAvgPrimal(t, primal_sol_, avg_primal_sol_);
+            Instance::UpdateAvgPrimal(t, solution_);
             UpdateAdvertiserWeights();
             UpdateImpressionWeights();
             ReportWorstInfeasibility(t);
@@ -250,11 +247,11 @@ namespace distributed_solver {
     
     void NaiveMW::CalculateRevenue() {
         long double MW_revenue = 0;
-        for (int a = 0; a < (*primal_sol_).size(); ++a) {
-            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*primal_sol_)[a].begin();
-                 iter != (*primal_sol_)[a].end();
+        for (int a = 0; a < (*solution_).size(); ++a) {
+            for (__gnu_cxx::hash_map<int, pair<long double, long double> >::iterator iter = (*solution_)[a].begin();
+                 iter != (*solution_)[a].end();
                  ++iter) {
-                MW_revenue += iter->second * (*bids_matrix_)[a][iter->first];
+                MW_revenue += iter->second.first * (*bids_matrix_)[a][iter->first];
             }
         }
         cout << "MW rev ";

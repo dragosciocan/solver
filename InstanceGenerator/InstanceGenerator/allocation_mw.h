@@ -39,9 +39,6 @@ namespace distributed_solver {
         vector<long double>* budgets_;
         vector<long double> slacks_;
         vector<long double> avg_slacks_;
-        vector<__gnu_cxx::hash_map<int, long double> >* primal_sol_;
-        vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol_;
-        
         vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* solution_;
         
         // Multiplicative weights related vars.
@@ -52,8 +49,6 @@ namespace distributed_solver {
     public:
         AllocationMW(int num_advertisers, int num_impressions, int num_slots, long double bid_sparsity,
                      long double max_bid, long double epsilon, long double numerical_accuracy_tolerance,
-                     vector<__gnu_cxx::hash_map<int, long double> >* primal_sol,
-                     vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol,
                      vector<__gnu_cxx::hash_map<int, long double> >* bids_matrix,
                      vector<__gnu_cxx::hash_map<int, long double> >* transpose_bids_matrix,
                      vector<long double>* budgets,

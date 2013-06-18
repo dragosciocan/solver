@@ -46,16 +46,14 @@ class NaiveMW {
     vector<KnapsackRatio> ratios_;
     long double weighted_budget_;
     vector<long double>* budgets_;
-    vector<__gnu_cxx::hash_map<int, long double> >* primal_sol_;
-    vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol_;
+    vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* solution_;
     vector<__gnu_cxx::hash_map<int, long double> >* bids_matrix_;
     vector<__gnu_cxx::hash_map<int, long double> >* transpose_bids_matrix_;
 
 public:
     NaiveMW(int num_impressions, int num_advertisers, long double max_bid,
             long double epsilon, long double width, long double bid_sparsity,
-            vector<__gnu_cxx::hash_map<int, long double> >* primal_sol,
-            vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol,
+            vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* solution,
             vector<__gnu_cxx::hash_map<int, long double> >* bids_matrix,
             vector<__gnu_cxx::hash_map<int, long double> >* transpose_bids_matrix,
             vector<long double>* budgets);

@@ -16,5 +16,18 @@
          landmarkName = "Subproblem::SolveSubproblemConvexHull(int iteration, int index)"
          landmarkType = "5">
       </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "InstanceGenerator/allocation_mw.cpp"
+         timestampString = "393269875.225381"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "375"
+         endingLineNumber = "375"
+         landmarkName = "AllocationMW::RunAllocationMW(int num_iterations)"
+         landmarkType = "5">
+      </FileBreakpoint>
    </FileBreakpoints>
 </Bucket>

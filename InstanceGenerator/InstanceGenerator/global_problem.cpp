@@ -57,11 +57,10 @@ namespace distributed_solver {
         }
     }
     
-    void GlobalProblem::ConstructPrimal(vector<__gnu_cxx::hash_map<int, long double> >* primal_sol, int iteration) {
+    void GlobalProblem::ConstructPrimal(int iteration) {
         num_iterations_++;
         
         // Reset primal solution.
-        Instance::ResetPrimal(primal_sol);
         Instance::ResetCurrentPrimal(solution_);
         
         clock_t t1, t2;
@@ -96,7 +95,7 @@ namespace distributed_solver {
                 long double u = subproblems_[i].envelope_points_[budget_allocation_[i].first].first;
                 long double v = subproblems_[i].envelope_points_[budget_allocation_[i].first].second;
                 dual_val += u * budget_allocation_[i].second + v;
-                ConstructSubproblemPrimal(primal_sol, i, budget_allocation_[i].second, budget_allocation_[i].first);
+                ConstructSubproblemPrimal(i, budget_allocation_[i].second, budget_allocation_[i].first);
             }
         }
         t2 = clock();
@@ -108,8 +107,7 @@ namespace distributed_solver {
         cout << "\n";
     }
     
-    void GlobalProblem::ConstructSubproblemPrimal(vector<__gnu_cxx::hash_map<int, long double> >* primal_sol,
-                                                  int subproblem_index, long double budget_allocation, int opt_region) {
+    void GlobalProblem::ConstructSubproblemPrimal(int subproblem_index, long double budget_allocation, int opt_region) {
         // Figure out opt u, v.
         long double u = subproblems_[subproblem_index].envelope_points_[opt_region].first;
         long double v = subproblems_[subproblem_index].envelope_points_[opt_region].second;
@@ -127,10 +125,10 @@ namespace distributed_solver {
                 }
             }
             
-            (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(max_price_index)][subproblem_index] = 1;
+            //(*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(max_price_index)][subproblem_index] = 1;
             (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(max_price_index)][subproblem_index].first = 1;
             
-            allocation_value = (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(max_price_index)][subproblem_index] * subproblems_[subproblem_index].constraints_[max_price_index].price_;
+            allocation_value = (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(max_price_index)][subproblem_index].first * subproblems_[subproblem_index].constraints_[max_price_index].price_;
             
             primal_assignment_test_ += allocation_value;
         }
@@ -150,9 +148,9 @@ namespace distributed_solver {
             }
              
             (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(max_ratio_index)][subproblem_index].first = budget_allocation / subproblems_[subproblem_index].constraints_[max_ratio_index].coefficient_;
-            (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(max_ratio_index)][subproblem_index] = budget_allocation / subproblems_[subproblem_index].constraints_[max_ratio_index].coefficient_;
+            //(*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(max_ratio_index)][subproblem_index] = budget_allocation / subproblems_[subproblem_index].constraints_[max_ratio_index].coefficient_;
            
-            allocation_value = (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(max_ratio_index)][subproblem_index] * subproblems_[subproblem_index].constraints_[max_ratio_index].price_;
+            allocation_value = (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(max_ratio_index)][subproblem_index].first * subproblems_[subproblem_index].constraints_[max_ratio_index].price_;
             primal_assignment_test_ += allocation_value;
         }
         
@@ -174,14 +172,15 @@ namespace distributed_solver {
                 cout << "ERROR, PERTURB PRICES \n";
             }
             if (tight_constraint_indices.size() == 1) {
+                /*
                 (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->
                               at(tight_constraint_indices[0])]
                             [subproblem_index] = fmin(budget_allocation / subproblems_[subproblem_index].constraints_[tight_constraint_indices[0]].coefficient_, 1);
-                (*solution_)[subproblems_[subproblem_index].advertiser_index_->
-                              at(tight_constraint_indices[0])][subproblem_index].first = fmin(budget_allocation / subproblems_[subproblem_index].constraints_[tight_constraint_indices[0]].coefficient_, 1);
+                 */
+                (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(tight_constraint_indices[0])][subproblem_index].first = fmin(budget_allocation / subproblems_[subproblem_index].constraints_[tight_constraint_indices[0]].coefficient_, 1);
                 
                 
-                allocation_value = (*primal_sol)[subproblems_[subproblem_index].advertiser_index_-> at(tight_constraint_indices[0])][subproblem_index] * subproblems_[subproblem_index].constraints_[tight_constraint_indices[0]].coefficient_;
+                allocation_value = (*solution_)[subproblems_[subproblem_index].advertiser_index_-> at(tight_constraint_indices[0])][subproblem_index].first * subproblems_[subproblem_index].constraints_[tight_constraint_indices[0]].coefficient_;
                 primal_assignment_test_ += allocation_value;
             }
             if (tight_constraint_indices.size() == 2) {
@@ -190,12 +189,14 @@ namespace distributed_solver {
                 
                 long double x_1 = (budget_allocation -
                               subproblems_[subproblem_index].constraints_[second_index].coefficient_) / (subproblems_[subproblem_index].constraints_[first_index].coefficient_ - subproblems_[subproblem_index].constraints_[second_index].coefficient_);
+                /*
                 (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(first_index)][subproblem_index] = x_1;
                 (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(second_index)][subproblem_index] = 1 - x_1;
+                 */
                 (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(first_index)][subproblem_index].first = x_1;
                 (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(second_index)][subproblem_index].first = 1 - x_1;
                 
-                allocation_value = x_1 * subproblems_[subproblem_index].constraints_[first_index].price_ + (1-x_1)*subproblems_[subproblem_index].constraints_[second_index].price_;
+                allocation_value = x_1 * subproblems_[subproblem_index].constraints_[first_index].price_ + (1-x_1) * subproblems_[subproblem_index].constraints_[second_index].price_;
                 primal_assignment_test_ += allocation_value;
                 
             }

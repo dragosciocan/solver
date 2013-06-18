@@ -35,9 +35,6 @@ class Instance {
     vector<__gnu_cxx::hash_map<int, long double> > bids_matrix_; // Matrix of bids of advertisers for impressions.
     vector<__gnu_cxx::hash_map<int, long double> > transpose_bids_matrix_;
     vector<long double> budgets_;
-    vector<__gnu_cxx::hash_map<int, long double> >* primal_sol_;
-    vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol_;
-    
     vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* solution_;
     
     // Multiplicative weights related vars.
@@ -57,11 +54,8 @@ public:
     
     // Creates current global problem.
     void RunMultiplicativeWeights(long double num_iterations, long double numerical_accuracy_tolerance);
-    static void UpdateAvgPrimal(int t,
-                                vector<__gnu_cxx::hash_map<int, long double> >* sol,
-                                vector<__gnu_cxx::hash_map<int, long double> >* avg_sol);
+    static void UpdateAvgPrimal(int t, vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* solution);
     void BuildPrimals();
-    static void ResetPrimal(vector<__gnu_cxx::hash_map<int, long double> >* sol);
     static void ResetCurrentPrimal(vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* sol);
 };
 }

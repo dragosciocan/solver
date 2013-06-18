@@ -123,14 +123,13 @@ namespace distributed_solver {
         if (mw_algorithm) {
             AllocationMW alloc_mw = AllocationMW(num_advertisers_, num_impressions_, num_slots_,
                                                  bid_sparsity_, max_bid_, epsilon_, numerical_accuracy_tolerance_,
-                                                 primal_sol_, avg_primal_sol_,
                                                  &bids_matrix_, &transpose_bids_matrix_,
                                                  &budgets_, solution_);
             alloc_mw.RunAllocationMW(num_iterations);
         } else {
             NaiveMW naive_mw = NaiveMW(num_impressions_, num_advertisers_,
                                        max_bid_, epsilon_, width_, bid_sparsity_,
-                                       primal_sol_, avg_primal_sol_,
+                                       solution_,
                                        &bids_matrix_, &transpose_bids_matrix_,
                                        &budgets_);
             naive_mw.RunNaiveMW(num_iterations);
@@ -144,49 +143,34 @@ namespace distributed_solver {
         }
     }
     
-    void Instance::UpdateAvgPrimal(int t,
-                                   vector<__gnu_cxx::hash_map<int, long double> >* sol,
-                                   vector<__gnu_cxx::hash_map<int, long double> >* avg_sol) {
-        long double new_value = 0;
-        for (int i = 0; i < (*avg_sol).size(); ++i) {
-            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*avg_sol)[i].begin();
-                 iter != (*avg_sol)[i].end();
+    void Instance::UpdateAvgPrimal(int t, vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* solution) {
+        //long double new_value = 0;
+        for (int i = 0; i < (*solution).size(); ++i) {
+            for (__gnu_cxx::hash_map<int, pair<long double, long double > >::iterator iter = (*solution)[i].begin();
+                 iter != (*solution)[i].end();
                  ++iter) {
+                /*
                 if ((*sol)[i].find(iter->first) != (*sol)[i].end()) {
                     new_value = (*sol)[i].find(iter->first)->second;
                 } else {
                     new_value = 0;
                 }
-                iter->second = (long double)(t - 1) / t * iter->second + (long double)1 / t * new_value;
+                 */
+                iter->second.second = (long double)(t - 1) / t * iter->second.second + (long double)1 / t * iter->second.first;
             }
         }
     }
     
     void Instance::BuildPrimals() {
-        primal_sol_ = new vector<__gnu_cxx::hash_map<int, long double> >();
-        avg_primal_sol_ = new vector<__gnu_cxx::hash_map<int, long double> >();
         solution_ = new vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >();
         for (int j = 0; j < num_advertisers_; ++j) {
-            __gnu_cxx::hash_map<int, long double> row;
-            __gnu_cxx::hash_map<int, pair<long double, long double> > row_2;
-            
+            __gnu_cxx::hash_map<int, pair<long double, long double> > row;
             for (__gnu_cxx::hash_map<int, long double>::iterator iter = bids_matrix_[j].begin();
                  iter != bids_matrix_[j].end();
                  ++iter) {
-                row[iter->first] = 0;
-                row_2[iter->first] = make_pair(0.0, 0.0);
+                row[iter->first] = make_pair(0.0, 0.0);
             }
-            primal_sol_->push_back(row);
-            avg_primal_sol_->push_back(row);
-            solution_->push_back(row_2);
-        }
-    }
-    
-    void Instance::ResetPrimal(vector<__gnu_cxx::hash_map<int, long double> >* sol) {
-        for (int i = 0; i < (*sol).size(); ++i) {
-            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*sol)[i].begin(); iter != (*sol)[i].end(); ++iter) {
-                iter->second = 0.0;
-            }
+            solution_->push_back(row);
         }
     }
     

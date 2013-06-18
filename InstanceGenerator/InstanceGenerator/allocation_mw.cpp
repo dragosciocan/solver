@@ -20,8 +20,6 @@ namespace distributed_solver {
     
     AllocationMW::AllocationMW(int num_advertisers, int num_impressions, int num_slots, long double bid_sparsity,
                                long double max_bid, long double epsilon, long double numerical_accuracy_tolerance,
-                               vector<__gnu_cxx::hash_map<int, long double> >* primal_sol,
-                               vector<__gnu_cxx::hash_map<int, long double> >* avg_primal_sol,
                                vector<__gnu_cxx::hash_map<int, long double> >* bids_matrix,
                                vector<__gnu_cxx::hash_map<int, long double> >* transpose_bids_matrix,
                                vector<long double>* budgets,
@@ -39,8 +37,6 @@ namespace distributed_solver {
         bid_sparsity_ = bid_sparsity;
         num_shards_ = 10;
         
-        primal_sol_ = primal_sol;
-        avg_primal_sol_ = avg_primal_sol;
         budgets_ = budgets;
         bids_matrix_ = bids_matrix;
         transpose_bids_matrix_ = transpose_bids_matrix;
@@ -126,8 +122,9 @@ namespace distributed_solver {
     void AllocationMW::CalculateSlacks() {
         for (int j = 0; j < num_advertisers_; ++j) {
             slacks_[j] = (-1) * (*budgets_)[j];
-            for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*primal_sol_)[j].begin(); iter != (*primal_sol_)[j].end(); ++iter) {
-                slacks_[j] = slacks_[j] + iter->second * (*bids_matrix_)[j].find(iter->first)->second;
+            for (__gnu_cxx::hash_map<int, pair<long double, long double> >::iterator iter = (*solution_)[j].begin();
+                 iter != (*solution_)[j].end(); ++iter) {
+                slacks_[j] = slacks_[j] + iter->second.first * (*bids_matrix_)[j].find(iter->first)->second;
             }
         }
     }
@@ -375,13 +372,13 @@ namespace distributed_solver {
             clock_t t1, t2;
             float diff;
             t1 = clock();
-            global_problem_.ConstructPrimal(primal_sol_, t);
+            global_problem_.ConstructPrimal(t);
             t2 = clock();
             diff = ((float)t2-(float)t1);
             cout << "execution time of relaxation computation was " << diff << "\n";
             
             t1 = clock();
-            Instance::UpdateAvgPrimal(t, primal_sol_, avg_primal_sol_);
+            Instance::UpdateAvgPrimal(t, solution_);
             t2 = clock();
             diff = ((float)t2-(float)t1);
             cout << "execution time of average primal update was " << diff << "\n";
