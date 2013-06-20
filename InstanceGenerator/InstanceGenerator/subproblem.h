@@ -23,8 +23,9 @@ namespace distributed_solver {
         long double coefficient_;
         long double weight_; // Add this to avoid arithmetic precision errors.
         bool is_active_;
+        int advertiser_index_;
         Constraint(); // Default constructor.
-        Constraint(long double price, long double coefficient, long double weight);
+        Constraint(long double price, long double coefficient, long double weight, int index);
         void set_active(bool value);
     };
 
@@ -39,7 +40,6 @@ namespace distributed_solver {
     public:
         int num_vars_;
         std::vector<Constraint> constraints_;
-        std::vector<int>* advertiser_index_;
         std::vector<std::pair<long double, long double> > envelope_points_;
         std::vector<long double> budget_cutoffs_;
         Subproblem(int num_vars, std::vector<std::pair<long double, long double> >* coefficients, std::vector<int>* advertiser_index);

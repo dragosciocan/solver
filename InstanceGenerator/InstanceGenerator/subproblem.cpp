@@ -19,10 +19,11 @@
 using namespace std;
 
 namespace distributed_solver {
-    Constraint::Constraint(long double price, long double coefficient, long double weight) {
+    Constraint::Constraint(long double price, long double coefficient, long double weight, int index) {
         price_ = price;
         coefficient_ = coefficient;
         weight_ = weight;
+        advertiser_index_ = index;
     }
     
     Constraint::Constraint() {}
@@ -38,10 +39,10 @@ namespace distributed_solver {
         for (int i = 0; i < num_vars_; ++i) {
             constraints_.push_back(Constraint((*coefficients)[i].first,
                                               (*coefficients)[i].first * (*coefficients)[i].second,
-                                              (*coefficients)[i].second));
+                                              (*coefficients)[i].second,
+                                              (*advertiser_index)[i]));
             constraints_[i].set_active(true);
         }
-        advertiser_index_ = advertiser_index;
     }
 
     void Subproblem::SolveSubproblem(int iteration, int index) {
@@ -63,7 +64,8 @@ namespace distributed_solver {
         }
         for (int i = 0; i < num_vars_; ++i) {
             if (constraints_[i].is_active_ == true) {
-                active_constraints.push_back(Constraint(constraints_[i].price_, constraints_[i].coefficient_, constraints_[i].weight_));
+                active_constraints.push_back(Constraint(constraints_[i].price_, constraints_[i].coefficient_, constraints_[i].weight_,
+                                                        constraints_[i].advertiser_index_));
             }
         }
                 
@@ -143,7 +145,8 @@ namespace distributed_solver {
             if ((convex_hull_points[p].x != 0.0) || (convex_hull_points[p].y != 0.0)) {
                 active_constraints.push_back(Constraint(convex_hull_points[p].y * (-1.0),
                                                         convex_hull_points[p].x * (-1.0),
-                                                        convex_hull_points[p].x / convex_hull_points[p].y));
+                                                        convex_hull_points[p].x / convex_hull_points[p].y,
+                                                        -1));
                 constraints_[convex_hull_points[p].constraint_id].is_active_ = true;
             }
         }
@@ -197,7 +200,7 @@ namespace distributed_solver {
         clock_t t1, t2, t3;
         float diff;
         t1 = clock();
-        std::vector<Constraint> active_constraints = upper_envelope(constraints_, 0.00000000000001);
+        std::vector<Constraint> active_constraints = upper_envelope(&constraints_, 0.00000000000001);
         t2 = clock();
         diff = ((float)t2-(float)t1);
         t3 = clock();

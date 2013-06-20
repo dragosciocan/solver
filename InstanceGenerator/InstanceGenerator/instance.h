@@ -43,7 +43,7 @@ class Instance {
     
 public:
     Instance(int num_advertisers, int num_impressions, int num_slots, long double bid_sparsity, long double epsilon,
-             long double scaling_factor, long double numerical_accuracy_toleranc);
+             long double scaling_factor, long double numerical_accuracy_tolerance);
     long double max_bid_;
     
     // Generation and output functions.
@@ -57,6 +57,9 @@ public:
     static void UpdateAvgPrimal(int t, vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* solution);
     void BuildPrimals();
     static void ResetCurrentPrimal(vector<__gnu_cxx::hash_map<int, pair<long double, long double> > >* sol);
+    
+private:
+    void ReportGraphTopology();
 };
 }
 

@@ -33,6 +33,6 @@ struct compare_Constraint_lexicographically {
         
 // Returns a list of points on the convex hull in counter-clockwise order.
 // Note: the last point in the returned list is the same as the first one.
-vector<Constraint> upper_envelope(vector<Constraint> P, long double numerical_tolerance);
+vector<Constraint> upper_envelope(vector<Constraint>* P, long double numerical_tolerance);
 }
 #endif /* defined(__InstanceGenerator__upper_envelope__) */

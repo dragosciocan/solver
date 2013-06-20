@@ -126,10 +126,8 @@ namespace distributed_solver {
             }
             
             //(*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(max_price_index)][subproblem_index] = 1;
-            (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(max_price_index)][subproblem_index].first = 1;
-            
-            allocation_value = (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(max_price_index)][subproblem_index].first * subproblems_[subproblem_index].constraints_[max_price_index].price_;
-            
+            (*solution_)[subproblems_[subproblem_index].constraints_[max_price_index].advertiser_index_][subproblem_index].first = 1;
+            allocation_value = (*solution_)[subproblems_[subproblem_index].constraints_[max_price_index].advertiser_index_][subproblem_index].first * subproblems_[subproblem_index].constraints_[max_price_index].price_;
             primal_assignment_test_ += allocation_value;
         }
         
@@ -147,10 +145,9 @@ namespace distributed_solver {
                 }
             }
              
-            (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(max_ratio_index)][subproblem_index].first = budget_allocation / subproblems_[subproblem_index].constraints_[max_ratio_index].coefficient_;
+            (*solution_)[subproblems_[subproblem_index].constraints_[max_ratio_index].advertiser_index_][subproblem_index].first = budget_allocation / subproblems_[subproblem_index].constraints_[max_ratio_index].coefficient_;
             //(*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(max_ratio_index)][subproblem_index] = budget_allocation / subproblems_[subproblem_index].constraints_[max_ratio_index].coefficient_;
-           
-            allocation_value = (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(max_ratio_index)][subproblem_index].first * subproblems_[subproblem_index].constraints_[max_ratio_index].price_;
+            allocation_value = (*solution_)[subproblems_[subproblem_index].constraints_[max_ratio_index].advertiser_index_][subproblem_index].first * subproblems_[subproblem_index].constraints_[max_ratio_index].price_;
             primal_assignment_test_ += allocation_value;
         }
         
@@ -177,10 +174,10 @@ namespace distributed_solver {
                               at(tight_constraint_indices[0])]
                             [subproblem_index] = fmin(budget_allocation / subproblems_[subproblem_index].constraints_[tight_constraint_indices[0]].coefficient_, 1);
                  */
-                (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(tight_constraint_indices[0])][subproblem_index].first = fmin(budget_allocation / subproblems_[subproblem_index].constraints_[tight_constraint_indices[0]].coefficient_, 1);
+                (*solution_)[subproblems_[subproblem_index].constraints_[tight_constraint_indices[0]].advertiser_index_][subproblem_index].first = fmin(budget_allocation / subproblems_[subproblem_index].constraints_[tight_constraint_indices[0]].coefficient_, 1);
                 
                 
-                allocation_value = (*solution_)[subproblems_[subproblem_index].advertiser_index_-> at(tight_constraint_indices[0])][subproblem_index].first * subproblems_[subproblem_index].constraints_[tight_constraint_indices[0]].coefficient_;
+                allocation_value = (*solution_)[subproblems_[subproblem_index].constraints_[tight_constraint_indices[0]].advertiser_index_][subproblem_index].first * subproblems_[subproblem_index].constraints_[tight_constraint_indices[0]].coefficient_;
                 primal_assignment_test_ += allocation_value;
             }
             if (tight_constraint_indices.size() == 2) {
@@ -193,8 +190,8 @@ namespace distributed_solver {
                 (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(first_index)][subproblem_index] = x_1;
                 (*primal_sol)[subproblems_[subproblem_index].advertiser_index_->at(second_index)][subproblem_index] = 1 - x_1;
                  */
-                (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(first_index)][subproblem_index].first = x_1;
-                (*solution_)[subproblems_[subproblem_index].advertiser_index_->at(second_index)][subproblem_index].first = 1 - x_1;
+                (*solution_)[subproblems_[subproblem_index].constraints_[first_index].advertiser_index_][subproblem_index].first = x_1;
+                (*solution_)[subproblems_[subproblem_index].constraints_[second_index].advertiser_index_][subproblem_index].first = 1 - x_1;
                 
                 allocation_value = x_1 * subproblems_[subproblem_index].constraints_[first_index].price_ + (1-x_1) * subproblems_[subproblem_index].constraints_[second_index].price_;
                 primal_assignment_test_ += allocation_value;
@@ -218,5 +215,66 @@ namespace distributed_solver {
         slope_ = slope;
         subproblem_index_ = subproblem_index;
         region_index_ = region_index;
+    }
+ 
+    long double GlobalProblem::FindOptimalBudgetAllocationBinSearch(long double lower, long double upper) {
+        vector<long double>* budget_usage = new vector<long double>(num_partitions_);
+        long double lower_bound = lower;
+        long double upper_bound = upper;
+        long double critical_ratio = (lower_bound + upper_bound) / 2.0;
+        long double critical_ratio_tolerance = 0.0001;
+        
+        //figure out (budget_usage - budget_) for current critical ratio
+        long double delta = CalculateAllocationDelta(critical_ratio, budget_usage);
+        
+        if (delta < 0) {
+            // Critical ratio too high.
+            upper_bound = critical_ratio;
+        } else if (delta > 0) {
+            // Critical ratio too low.
+            lower_bound = critical_ratio;
+        } else {
+            // Budget perfectly assigned, allocate as is.
+            AllocateCurrentRatio(critical_ratio);
+            return critical_ratio;
+        }
+        
+        if (upper_bound - lower_bound < critical_ratio_tolerance) {
+            // Terminate if critical ratio is closely bounded.
+            AllocateCurrentRatio(critical_ratio);
+            return critical_ratio;
+        }
+        else {
+            // Recurse.
+            return FindOptimalBudgetAllocationBinSearch(lower_bound, upper_bound);
+        }
+    }
+    
+    long double GlobalProblem::CalculateAllocationDelta(long double critical_ratio, vector<long double>* budget_usage) {
+        long double total_budget_usage = 0.0;
+        for (int i = 0; i < num_partitions_; ++i) {
+            (*budget_usage)[i] = 0;
+            for (int j = 0; j < subproblems_[i].envelope_points_.size() - 1; ++j) {
+                if (subproblems_[i].envelope_points_[j].first >= critical_ratio) {
+                    (*budget_usage)[i] += subproblems_[i].budget_cutoffs_[j + 1] - subproblems_[i].budget_cutoffs_[j];
+                }
+            }
+            total_budget_usage += (*budget_usage)[i];
+        }
+        return total_budget_usage - budget_;
+    }
+    
+    void GlobalProblem::AllocateCurrentRatio(long double critical_ratio) {
+        // This method updates optimal budget_allocation_ based on critical ratio method.
+        for (int i = 0; i < num_partitions_; ++i) {
+            for (int j = 0; j < subproblems_[i].envelope_points_.size() - 1; ++j) {
+                if (subproblems_[i].envelope_points_[j].first >= critical_ratio) {
+                    budget_allocation_[i] = make_pair(j,
+                                                      budget_allocation_[i].second
+                                                      + subproblems_[i].budget_cutoffs_[j + 1]
+                                                      - subproblems_[i].budget_cutoffs_[j]);
+                }
+            }
+        }
     }
 }

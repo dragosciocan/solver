@@ -55,6 +55,7 @@ namespace distributed_solver {
             bids_matrix_.push_back(bid_row);
         }
         cout << "Generated instance \n";
+        ReportGraphTopology();
     }
     
     void Instance::WriteInstanceToCSV(string file_name_handle) {
@@ -149,13 +150,6 @@ namespace distributed_solver {
             for (__gnu_cxx::hash_map<int, pair<long double, long double > >::iterator iter = (*solution)[i].begin();
                  iter != (*solution)[i].end();
                  ++iter) {
-                /*
-                if ((*sol)[i].find(iter->first) != (*sol)[i].end()) {
-                    new_value = (*sol)[i].find(iter->first)->second;
-                } else {
-                    new_value = 0;
-                }
-                 */
                 iter->second.second = (long double)(t - 1) / t * iter->second.second + (long double)1 / t * iter->second.first;
             }
         }
@@ -183,6 +177,14 @@ namespace distributed_solver {
                 iter->second.first = 0.0;
             }
         }
-
+    }
+    
+    void Instance::ReportGraphTopology() {
+        for (int a = 0; a < bids_matrix_.size(); ++a) {
+            cout << "Advertiser " << a << " degree is " << bids_matrix_[a].size() << "\n";
+        }
+        for (int i = 0; i < transpose_bids_matrix_.size(); ++i) {
+            cout << "Impression " << i << " degree is " << transpose_bids_matrix_[i].size() << "\n";
+        }
     }
 }

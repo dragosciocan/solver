@@ -18,18 +18,18 @@ namespace distributed_solver {
     }
     
     // Returns a list of points on the convex hull in counter-clockwise order.
-    vector<Constraint> upper_envelope(vector<Constraint> P, long double numerical_tolerance)
+    vector<Constraint> upper_envelope(vector<Constraint>* P, long double numerical_tolerance)
     {
         // Add (0, 0)
-        P.push_back(Constraint(0.0, 0.0, -1.0));
-        int n = P.size(), k = 0;
+        (*P).push_back(Constraint(0.0, 0.0, -1.0, -1));
+        int n = (*P).size(), k = 0;
         vector<Constraint> H(n);
         // Sort points lexicographically
-        sort(P.begin(), P.end(), compare_Constraint_lexicographically());
+        sort((*P).begin(), (*P).end(), compare_Constraint_lexicographically());
         // Build lower hull
         for (int i = 0; i < n; i++) {
-            while (k >= 2 && cross(H[k-2], H[k-1], P[i]) <= numerical_tolerance) k--;
-            H[k] = P[i];
+            while (k >= 2 && cross(H[k-2], H[k-1], (*P)[i]) <= numerical_tolerance) k--;
+            H[k] = (*P)[i];
             k++;
         }
         H.resize(k);

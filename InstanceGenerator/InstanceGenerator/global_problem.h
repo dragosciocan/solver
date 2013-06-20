@@ -42,8 +42,11 @@ namespace distributed_solver {
         void ConstructSubproblemPrimal(int subproblem_index, long double budget_allocation, int opt_region);
         long double numerical_accuracy_tolerance_;
         long double primal_assignment_test_;
+        long double FindOptimalBudgetAllocationBinSearch(long double lower, long double upper);
+        long double CalculateAllocationDelta(long double critical_ratio, vector<long double>* budget_usage);
+        void AllocateCurrentRatio(long double critical_ratio);
     };
-    
+        
     class Slope {
     public:
         long double slope_;

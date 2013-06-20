@@ -70,20 +70,11 @@ namespace distributed_solver {
         ComputeWeightedBudget();
         for (int i = 0; i < global_problem_.num_partitions_; ++i) {
             // Construct subproblems.
-            vector<pair<long double, long double> >* coefficients;
-            coefficients = new vector<pair<long double, long double> >();
+            vector<pair<long double, long double> >* coefficients = new vector<pair<long double, long double> >();
             vector<int>* advertiser_index = new vector<int>();
             
             // Go through bids matrix and identify all bids for impression i.
             int subproblem_size = 0;
-            /*for (int j = 0; j < num_advertisers_; ++j) {
-             if (bids_matrix_[j].find(i) != bids_matrix_[j].end()) {
-             coefficients->push_back(make_pair(bids_matrix_[j].find(i)->second,
-             bids_matrix_[j].find(i)->second * weights_[j]));
-             advertiser_index->push_back(j);
-             ++subproblem_size;
-             }
-            }*/
             
             for (__gnu_cxx::hash_map<int, long double>::iterator iter = (*transpose_bids_matrix_)[i].begin();
                  iter != (*transpose_bids_matrix_)[i].end();
@@ -95,15 +86,19 @@ namespace distributed_solver {
             }
             
             global_problem_.subproblems_.push_back(Subproblem(subproblem_size, coefficients, advertiser_index));
+            (*coefficients).clear();
+            (*advertiser_index).clear();
         }
+        (*transpose_bids_matrix_).clear();
+        // cout << "Size of global problem object is " << (sizeof(global_problem_) * 4.0) / (1024.0 * 1024.0) << "\n";
     }
     
     void AllocationMW::UpdateGlobalProblem() {
         // Update weights.
         for (int i = 0; i < global_problem_.num_partitions_; ++i) {
             for (int j = 0; j < global_problem_.subproblems_[i].num_vars_; ++j) {
-                global_problem_.subproblems_[i].constraints_[j].coefficient_ = global_problem_.subproblems_[i].constraints_[j].price_ * weights_[global_problem_.subproblems_[i].advertiser_index_->at(j)];
-                global_problem_.subproblems_[i].constraints_[j].weight_ = weights_[global_problem_.subproblems_[i].advertiser_index_->at(j)];
+                global_problem_.subproblems_[i].constraints_[j].coefficient_ = global_problem_.subproblems_[i].constraints_[j].price_ * weights_[global_problem_.subproblems_[i].constraints_[j].advertiser_index_];
+                global_problem_.subproblems_[i].constraints_[j].weight_ = weights_[global_problem_.subproblems_[i].constraints_[j].advertiser_index_];
                 global_problem_.subproblems_[i].constraints_[j].is_active_ = true;
             }
         }
@@ -384,7 +379,7 @@ namespace distributed_solver {
             cout << "execution time of average primal update was " << diff << "\n";
             
             // Runs CPLEX for debugging only, should be turned off.
-            VerifySolution();
+            //VerifySolution();
             
             // Calculate slacks, update averages and recalculate weights.
             t1 = clock();
